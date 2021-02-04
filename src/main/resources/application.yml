@@ -2,8 +2,8 @@ server:
   port: 8888
 
 oss:
-  accessId: LTAI4GJfwJS9RW52fCCGLxuP           #ÇëÌîĞ´ÄúµÄAccessKeyId¡£
-  accessKey: UNBmVesTbcLAnyexMX4FNMProlZsXl    #ÇëÌîĞ´ÄúµÄAccessKeySecret¡£
-  endpoint: oss-cn-beijing.aliyuncs.com        #ÇëÌîĞ´ÄúµÄ endpoint¡£
-  bucket: aliyunoss-test                       #ÇëÌîĞ´ÄúµÄ bucketname ¡£
+  accessId: ******************           #ÇëÌîĞ´ÄúµÄAccessKeyId¡£
+  accessKey: ******************     #ÇëÌîĞ´ÄúµÄAccessKeySecret¡£
+  endpoint: ******************         #ÇëÌîĞ´ÄúµÄ endpoint¡£
+  bucket: ******************                       #ÇëÌîĞ´ÄúµÄ bucketname ¡£
 
