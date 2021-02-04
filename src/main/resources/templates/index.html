@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>web直传oss</title>
+		<style type="text/css">
+			.file-box {
+				position: relative;
+				display: inline-block;
+				width: 160px;
+				height: 160px;
+				background: url(img/aaa.png) no-repeat;
+				background-size: cover;
+				background-position: center;
+			}
+
+			#input_file {
+				width: 100%;
+				height: 100%;
+				opacity: 0;
+				filter: alpha(opacity=0);
+			}
+		</style>
+	</head>
+
+	<body>
+		<p>oss web服务端签名后直传</p>
+		<div class="file-box">
+			<input type="file" value="" name="file" id="input_file" accept="image/gif,image/jpeg,image/jpg,image/png,image/svg"
+			 onchange="imgPreview(this,0)">
+		</div>
+		<script src="js/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			let uploadObj; // 上传凭证对象
+			let verifyImg; //上传之后的图片oss地址
+			function imgPreview(fileDom, i) {
+				// 获取上传凭证
+				$.ajax({
+					url: '/aliyun/oss/getpolicy', // 这里是请求的后台通过oss上传凭证的接口
+					/*data: JSON.stringify({
+						data: ''
+					}),*/
+					dataType: 'json',
+					type: 'get',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					success: function(response) {
+						console.log(response)
+						if (response != null) {
+							uploadObj = response;
+							// 获取到上传凭证成功之后 封装请求的数据
+							let request = new FormData();
+							request.append("OSSAccessKeyId", uploadObj.accessid); //Bucket 拥有者的Access Key Id。
+							request.append("policy", uploadObj.policy); //policy规定了请求的表单域的合法性
+							request.append("Signature", uploadObj.signature); //根据Access Key Secret和policy计算的签名信息，OSS验证该签名信息从而验证该Post请求的合法性
+							//---以上都是阿里的认证策略 							
+							let file = document.getElementById("input_file").files[0];
+							if (!file) {
+								return;
+							}
+							request.append("key", `${uploadObj.dir}/${file.name}`); //文件名字，可设置路径
+							request.append("success_action_status", '200'); // 让服务端返回200,不然，默认会返回204
+							request.append('file', file); //需要上传的文件 file  
+							$.ajax({
+								url: uploadObj.host, //上传阿里地址
+								data: request,
+								processData: false, //默认true，设置为 false，不需要进行序列化处理
+								cache: false, //设置为false将不会从浏览器缓存中加载请求信息
+								async: false, //发送同步请求
+								contentType: false, //避免服务器不能正常解析文件---------具体的可以查下这些参数的含义
+								dataType: 'json', //不涉及跨域  写json即可
+								type: 'post',
+							});
+							// 上传成功提示
+							console.log(`上传的文件oss地址 ${uploadObj.host}/${uploadObj.dir}/${file.name}`);
+							alert('上传成功${file.name}');
+						} else {
+							alert(`${response && response.header.msg[0]}`);
+						}
+					},
+					error: function(error) {
+						console.log(error);
+					},
+				});
+
+				//判断是否支持FileReader
+				if (window.FileReader) {
+					var reader = new FileReader();
+				} else {
+					alert("您的设备不支持图片预览功能，如需该功能请升级您的设备！");
+				}
+				//获取文件
+				var file = fileDom.files[0];
+				if (!file) {
+					return;
+				}
+				var imageType = /^image\//;
+				//是否是图片
+				if (!imageType.test(file.type)) {
+					alert("请选择图片！");
+					return;
+				}
+				//读取完成
+				reader.onload = function(e) {
+					//图片路径设置为读取的图片
+					// img.src = e.target.result;
+					document.getElementsByClassName('file-box')[i].style.background = "url(" + e.target.result + ")no-repeat"; //回显图片
+					document.getElementsByClassName('file-box')[i].style.backgroundSize = '';
+				};
+				reader.readAsDataURL(file);
+			}
+		</script>
+	</body>
+</html>
